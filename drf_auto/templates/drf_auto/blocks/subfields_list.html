@@ -1,0 +1,32 @@
+<ul class="list fields">
+    {% for field in fields %}
+        <li class="field">
+            {{ field.name }}: ({{ field.type }})
+            {% if field.required %}
+                <span class="label label-primary label-required" title="Required">R</span>
+            {% endif %}
+            {% if field.to_many_relation %}
+                <span class="label label-primary label-required" title="Support sending several objects of this type in a request ({{obj}, {obj}, ... })">Массив объектов</span>
+            {% endif %}
+
+            {% if field.label or field.description %}&mdash;
+            {% if field.label %}"{{ field.label }}"{% if field.description %}: {% endif %}{% endif %}
+            {% if field.description %}"{{ field.description }}"{% endif %}
+            {% else %}
+                "Разработчик забыл добавить описание ;(("
+            {% endif %}
+
+            {% if field.choices_fields %}
+                <ul class="list fields">
+                {% for choice, value in field.choices_fields.items %}
+                    <li class="fields">{{ choice }}: {{ value }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if field.sub_fields %}
+                {% include "drf_auto/blocks/subfields_list.html" with fields=field.sub_fields %}
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>

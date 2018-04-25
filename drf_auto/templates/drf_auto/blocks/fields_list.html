@@ -1,0 +1,24 @@
+{% load drf_auto %}
+{% for method_name in all_methods %}
+    {% if method_name in fields.IN or method_name in fields.OUT %}
+        <p class="fields-desc">
+            {{ method_name }}: {% if method_name in methods_docs %}{{ methods_docs|get_item:method_name }}{% endif %}
+        </p>
+        {% if method_name in fields.IN and method_name in fields.OUT %}
+            <ul class="list fields">
+                <li class="field">
+                    Параметры: {% include 'drf_auto/blocks/subfields_list.html' with fields=fields.IN|get_item:method_name %}
+                </li>
+                <li class="field">
+                    Возвращает: {% include 'drf_auto/blocks/subfields_list.html' with fields=fields.OUT|get_item:method_name %}
+                </li>
+            </ul>
+        {% elif method_name in fields.IN %}
+            <p class="fields-desc">Принимает:</p>
+            {% include 'drf_auto/blocks/subfields_list.html' with fields=fields.IN|get_item:method_name %}
+        {% elif method_name in fields.OUT %}
+            <p class="fields-desc">Возвращает:</p>
+            {% include 'drf_auto/blocks/subfields_list.html' with fields=fields.OUT|get_item:method_name %}
+        {% endif %}
+    {% endif %}
+{% endfor %}

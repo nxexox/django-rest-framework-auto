@@ -1,0 +1,30 @@
+{% load drf_auto %}
+
+{% get_settings_formats as formats %}
+
+<h1>Общее описание API.</h1>
+<div class="panel-group" role="tablist">
+
+    {% for key, value in formats.items %}
+    <div class="panel panel-default endpoint">
+        <div class="panel-heading"
+             role="tab"
+             data-toggle="collapse"
+             data-target="#get_settings_formats__{{ forloop.counter }}"
+        >
+            <div class="row">
+                <div class="col-md-12">
+                    <h4 class="panel-title title"><i class="fa fa-hand-o-right"></i> {{ key }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="panel-collapse collapse" id="get_settings_formats__{{ forloop.counter }}" role="tabpanel">
+            <div class="panel-body">
+                {{ value|safe }}
+            </div>
+        </div>
+
+    </div>
+    {% endfor %}
+
+</div>

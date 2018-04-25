@@ -1,0 +1,79 @@
+{% load static from staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% block title %}REST API Docs{% endblock %}</title>
+
+    {% block style %}
+        <link rel="stylesheet" href="{% static "drf_auto/css/style.css" %}">
+    {% endblock %}
+  </head>
+
+  <body>
+    <div class="container" style="width:90%">
+
+      <nav class="navbar navbar-default">
+        <div class="container-fluid">
+          <!-- Brand and toggle get grouped for better mobile display -->
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#drfdoc-navbar" aria-expanded="false">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            {% block logo %}<a class="navbar-brand" href="http://www.drfdocs.com/">DRF Docs</a>{% endblock %}
+          </div>
+
+          <!-- Collect the nav links, forms, and other content for toggling -->
+          <div class="collapse navbar-collapse" id="drfdoc-navbar">
+            <form method="get" action="." class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" name="query" value="{{ query }}" placeholder="Напечатай что нибудь...">
+              </div>
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+              {% block apps_menu %}{% endblock %}
+            </ul>
+          </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+      </nav>
+
+      {% block jumbotron %}
+      <div class="jumbotron">
+        <h1>DRF Docs</h1>
+        <h3>Document Web APIs made with <a href="http://www.django-rest-framework.org/" target="_blank">Django REST Framework</a>.</h3>
+      </div>
+      {% endblock %}
+
+      {% block description %}
+        {% include 'drf_auto/description.html' %}
+      {% endblock %}
+
+      {% block content %}
+        {% csrf_token %}
+        {% include 'drf_auto/content.html' %}
+      {% endblock %}
+
+      {% block footer %}
+      <div class="footer">
+        <div class="links">
+          <a href="https://neoliz.ru/"><i class="fa fa-link"></i></a>
+          <a href="https://www.github.com/nxexox"><i class="fa fa-github"></i></a>
+        </div>
+
+      </div>
+      {% endblock %}
+    </div>
+
+    <!-- Dist.js - Inlcuded Live API, jQuery, Bootstrap -->
+    {% block script %}
+    <script type="text/javascript" src="{% static "drf_auto/js/dist.min.js" %}"></script>
+    {% endblock %}
+  </body>
+</html>
