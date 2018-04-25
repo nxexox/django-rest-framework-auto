@@ -42,20 +42,20 @@ INSTALLED_APPS = (
 Для начала напишите свое первое view и зарегистрируем его в роутере.
 ```python  
 class TestView(APIView):
-	"""
-	Тестовый поинт, для проверки работы автодокументации.
-	"""  
-	http_method_names = ['get', 'post', 'put', 'delete'] 
-	docs_serializer_classes = { 
-		'get': GetExampleSerializer, 
-		'post': { 
-			'in': PostInExampleSerializer, 
-			'out': PostOutExampleSerializer 
-		}
-	}
-	docs_exclude_fields = {
-		'post': ['exclude_field', 'exclude_field_two']
-	}
+    """
+    Тестовый поинт, для проверки работы автодокументации.
+    """  
+    http_method_names = ['get', 'post', 'put', 'delete'] 
+    docs_serializer_classes = { 
+        'get': GetExampleSerializer, 
+        'post': { 
+            'in': PostInExampleSerializer, 
+            'out': PostOutExampleSerializer 
+        }
+    }
+    docs_exclude_fields = {
+        'post': ['exclude_field', 'exclude_field_two']
+    }
 ```
 `GetExampleSerializer, PostInExampleSerializer, PostOutExampleSerializer` - любые стандартные `rest_framework.serializers.Serializer, rest_framework.serializers.ModelSerializer`, используются для примера.
 Затем нужно подключить view с документацией в роутер.
@@ -65,15 +65,15 @@ from test_app.views import TestView
 from drf_auto.views import DRFDocsView
 
 urlpatterns = [
-	url(r'^test-view/$', TestView.as_view()),
+    url(r'^test-view/$', TestView.as_view()),
     url(r'^api-docs/$', DRFDocsView.as_view(), name='docs')
 ]
 ## OR ##
 from drf_auto import urls as api_docs_urls
 
 urlpatterns = [
-	url(r'^test-view/$', TestView.as_view()),
-	url(r'^api-docs/', include(api_docs_urls))
+    url(r'^test-view/$', TestView.as_view()),
+    url(r'^api-docs/', include(api_docs_urls))
 ]
 ```
 После этого можно открывать страницу `api-docs` и там будет динамически сгенерирована документация. Обратите внимание, в первом случае мы указывали `name='docs'`, а во втором нет. Во втором случае `name='docs'` уже указано внутри `api_docs_urls`. Не беспокойтесь, параметрами `name, namespace` можно управлять через настройки.
@@ -86,11 +86,11 @@ urlpatterns = [
  - - Указать метод и один сериалайзер: `'get': GetExampleSerializer`. В таком случае в блок `Возвращает` попадет описание этого сериалайзера. Автодокументация возьмет все филды и опишет их. Тип филда, подпись (`label` или `verbose_name`) в зависимости от типа филда. В блок `Принимает` не попадет ничего, и он просто не отобразиться в документации.
  - - Указать метод и точное описание метода. 
 	```python
-	'post': { 
-		'in': PostInExampleSerializer, 
-		'out': PostOutExampleSerializer 
-	}
-	```
+    'post': { 
+        'in': PostInExampleSerializer, 
+        'out': PostOutExampleSerializer 
+    }
+    ```
     В таком случае в блок `Принимает` попадет описание `PostInExampleSerializer` сериалайзера. А в блок `Возвращает` попадет описание `PostOutExampleSerializer` сериалайзера. Так же, можно указать только один из двух ключей `in`/`out`. В таком случае только один ключ попадет в документацию, а второй будет игнорирован и исключен из документации.
  - - Не описывать метод вовсе. В таком случае блоки `Принимает`/`Возвращает` будут исключены, и вместо них будет блок `ALL`. Содержимое его будет описанием сериалайзера из атрибута `serializer_class`. Если таковой установлен. Т.е. автодока сама попытается найти сериалайзер для отображения документации.
  - Дополнительно можно во view установить атрибут `docs_exclude_fields`. Это словарь, где ключ метод, значение список филдов. Эти филды для этого метода будут исключены из документации. Например вы хотите давать пользователю создавать статью, но привязку пользователя к статье брать из `request.user`, в таком случае просто искчлючите из документации филд пользователя, а самостоятельно пробрасывайте его в данные перед созданием.
@@ -138,9 +138,9 @@ urlpatterns = [
 В стандартном случае ответ ошибки выглядит так:
  ```json
 {
-	"code": "code", 
-	"message": "message", 
-	"data": "data"
+    "code": "code", 
+    "message": "message", 
+    "data": "data"
 }
  ```
  
@@ -177,15 +177,15 @@ urlpatterns = [
 ```python
 # ... your other settings
 REST_FRAMEWORK_AUTO = {
-	'HIDE_DOCS': True,
-	'SERIALIZERS_ATTR_NAME': 'docs_serializer_classes',
-	'EXCLUDE_FIELDS_ATTR_NAME': 'docs_exclude_fields',
-	'SERIALIZER_DOC_ATTR': 'doc_method_fields_classes',
-	'SERIALIZER_DOC_CODES': {'common': {}, 'specific': {}},
-	'SERIALIZERS_RESPONSE_FIELD': 'serializer_classes',
-	'SERIALIZERS_REQUEST_FIELD': 'serializer_classes',
-	'SERIALIZERS_REQUEST_KEY': 'in',
-	'SERIALIZERS_RESPONSE_KEY': 'out'
+    'HIDE_DOCS': True,
+    'SERIALIZERS_ATTR_NAME': 'docs_serializer_classes',
+    'EXCLUDE_FIELDS_ATTR_NAME': 'docs_exclude_fields',
+    'SERIALIZER_DOC_ATTR': 'doc_method_fields_classes',
+    'SERIALIZER_DOC_CODES': {'common': {}, 'specific': {}},
+    'SERIALIZERS_RESPONSE_FIELD': 'serializer_classes',
+    'SERIALIZERS_REQUEST_FIELD': 'serializer_classes',
+    'SERIALIZERS_REQUEST_KEY': 'in',
+    'SERIALIZERS_RESPONSE_KEY': 'out'
 }
 # ... your other settings
 ```
@@ -216,28 +216,28 @@ REST_FRAMEWORK_AUTO = {
 В стандартном случае ответ ошибки выглядит так:
  ```json
 {
-	"code": "code", 
-	"message": "message", 
-	"data": "data"
+    "code": "code", 
+    "message": "message", 
+    "data": "data"
 }
  ```
  Общий словарь ошибок можно сформировать в настройках. Либо в другом месте и в настройках его пробросить. Пример:
 ```json
 {
-	"common": {  
-	    "1**": "Проблемы с правами на объект.",  
-		"2**": "Не найдено.",  
-		"3**": "Пока пусто",  
-		"4**": "Неверный запрос."  
-	},  
-	"specific": {  
-	    "100": "У вас нет прав на просмотр объекта. Пожалуйста убедитесь в верности запрашиваемых данных.",  
-		"101": "У вас нет прав на удаление объекта. Пожалуйста убедитесь в верности запроса.",  
-		"102": "У вас нет прав на создание объекта. Пожалуйста убедитесь в верности запроса.",  
-		"200": "Не найден родительский объект. Возможно он был удален или у вас не хватает прав.",  
-		"400": "Плохой запрос. Неверные данные.",  
-		"401": "Ошибка валидации."
-	}
+    "common": {  
+        "1**": "Проблемы с правами на объект.",  
+        "2**": "Не найдено.",  
+        "3**": "Пока пусто",  
+        "4**": "Неверный запрос."  
+    },  
+    "specific": {  
+        "100": "У вас нет прав на просмотр объекта. Пожалуйста убедитесь в верности запрашиваемых данных.",  
+        "101": "У вас нет прав на удаление объекта. Пожалуйста убедитесь в верности запроса.",  
+        "102": "У вас нет прав на создание объекта. Пожалуйста убедитесь в верности запроса.",  
+        "200": "Не найден родительский объект. Возможно он был удален или у вас не хватает прав.",  
+        "400": "Плохой запрос. Неверные данные.",  
+        "401": "Ошибка валидации."
+    }
 }
 ```
 Этот словарь отразиться в авто документации по апи. `common` секция используется только для автодоки. Секция `specific` используется как для автодоки, так и для поиска сообщения в ответе, когда произошла ошибка. Сообщение ищется по параметру `code` у исключения `drf_auto.exceptions.FailPointRequest`. Найденное сообщение попадет в `message` ответа сервера.
