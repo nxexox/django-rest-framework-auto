@@ -24,6 +24,16 @@ __DEFAULTS = {
         'SERIALIZER_DOC_ATTR': 'doc_method_fields_classes',
         'PARSER_CLASS': 'drf_auto.autodocs.parsers.DefaultParser',
     },
+    'AUTO_REST': {
+        'EXCEPTIONS': {
+            'PROCESS_EXCEPT': True,  # Нужно ли обработать ошибки?
+            'PROCESS_EXCEPT_HANDLER': None,  # Свой обработчик ошибок.
+            # Список исключений, которые обрабатываем.
+            'EXCEPTION_LIST': ['rest_framework.serializers.ValidationError'],
+            'CODE_EXCEPTION_LIST': 400,  # Код ответа апи при обработке исключний.
+            'STATUS_EXCEPTION_LIST': 400,  # Код ответа сервера при обработке исключений.
+        },
+    },
     'CODES': CODES,
     'SERIALIZERS_RESPONSE_FIELD': 'serializer_classes',
     'SERIALIZERS_REQUEST_FIELD': 'serializer_classes',
@@ -33,7 +43,8 @@ __DEFAULTS = {
 
 # Настройки, которые нужно импортировать как классы/функции. Вложенность через .
 __IMPORTS = {
-    'DOCS.PARSER_CLASS'
+    'DOCS.PARSER_CLASS',
+    'AUTO_REST.EXCEPTIONS.EXCEPTION_LIST', 'AUTO_REST.EXCEPTIONS.PROCESS_EXCEPT_HANDLER'
 }
 # Настройки которые не нужно создавать как подкласс настроек, а брать прямо как указано. Вложенность через .
 __NOT_CREATE_SETTINGS = {

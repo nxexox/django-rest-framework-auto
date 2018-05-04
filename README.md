@@ -184,6 +184,15 @@ REST_FRAMEWORK_AUTO = {
         'SERIALIZER_DOC_ATTR': 'doc_method_fields_classes',
         'PARSER_CLASS': 'drf_auto.autodocs.parsers.DefaultParser'
     },
+    'AUTO_REST': {
+        'EXCEPTIONS': {
+            'PROCESS_EXCEPT': True,
+            'PROCESS_EXCEPT_HANDLER': None,
+            'EXCEPTION_LIST': ['rest_framework.serializers.ValidationError'],
+            'CODE_EXCEPTION_LIST': 400,
+            'STATUS_EXCEPTION_LIST': 400,
+        },
+    },
     'SERIALIZER_DOC_CODES': {'common': {}, 'specific': {}},
     'SERIALIZERS_RESPONSE_FIELD': 'serializer_classes',
     'SERIALIZERS_REQUEST_FIELD': 'serializer_classes',
@@ -198,6 +207,11 @@ REST_FRAMEWORK_AUTO = {
  - `DOCS.EXCLUDE_FIELDS_ATTR_NAME` - Название атрибута для исключения филдов из описания документации.
  - `DOCS.SERIALIZER_DOC_ATTR` - Название атрибута для описания `SerialiazerMethodField` у сериалайзеров. Прописывать в `serializer.Meta` классе. Даже если класс не `ModelSerializer`.
  - `DOCS.PARSER_CLASS` - Путь до класса, который парсит сериалайзер и возвращает нужные данные для автодоки.
+ - `AUTO_REST.EXCEPTIONS.PROCESS_EXCEPT` - Слудет ли обрабатывать исключения, возникшие при обработке запроса от клиента?
+ - `AUTO_REST.EXCEPTIONS.PROCESS_EXCEPT_HANDLER` - Путь до своего обработчика исключений, во время обработки запроса. Принимает `exc` - экземпляр исключения. Возвращает `rest_framework.response.Response` - ответ от сервера. Работает только если включен `PROCESS_EXCEPT`.
+ - `AUTO_REST.EXCEPTIONS.EXCEPTION_LIST` - Список исключений, которые дополнительно стоит обработать помимо `drf_auto.exceptions.FailPointRequest`. Работает только если включен `PROCESS_EXCEPT`.
+ - `AUTO_REST.EXCEPTIONS.CODE_EXCEPTION_LIST` - Код ответа апи при ответе, во время обработки исключения.
+ - `AUTO_REST.EXCEPTIONS.STATUS_EXCEPTION_LIST` - Код ответа сервера при ответе, во время обработки исключения.
  - `SERIALIZER_DOC_CODES` - Единая база ошибок.
  - `SERIALIZERS_RESPONSE_FIELD` - Название филда, для поиска словаря сериалайзеров для ответа.
  - `SERIALIZERS_REQUEST_FIELD` - Название филда, для поиска словаря сериалайзеров для обработки запроса.

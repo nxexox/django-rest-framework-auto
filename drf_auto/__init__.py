@@ -8,7 +8,7 @@ ______ ______ ______         ____
 
 """
 
-VERSION = (0, 4, '1a1')
+VERSION = (0, 4, '1a2')
 default_app_config = "drf_auto.apps.DRFAutoConfig"
 
 __title__ = 'Django REST Framework Auto'

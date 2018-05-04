@@ -9,7 +9,7 @@ from rest_framework.generics import (
     CreateAPIView, DestroyAPIView, GenericAPIView
 )
 from rest_framework.response import Response
-from rest_framework.serializers import BaseSerializer, ValidationError
+from rest_framework.serializers import BaseSerializer
 
 from ..exceptions import FailPointRequest
 from ..settings import DefaultSettings
@@ -51,7 +51,7 @@ class AutoPointFailRequest(GenericAPIView):
 
         code = code if code else status
         if not message:
-            message = DefaultSettings.DOCS.get_code(code)
+            message = DefaultSettings.get_code(code)
 
         kwargs = {}  # Формируем ответ.
         if fields:
@@ -68,16 +68,35 @@ class AutoPointFailRequest(GenericAPIView):
 
     def handle_exception(self, exc):
         """
-        Переопределяем обработку исключений, что отловить наше.
+        Переопределяем обработку исключений, что бы отловить наше.
+
+        :param BaseException exc: Исключение, которое проищошло.
+
+        :return: Обработанный ответ от апи.
+        :rtype: rest_framework.response.Response
 
         """
-        # TODO: Добавить поддержку замены этой функции на пользовательскую. Через настройки приложения и importlib.
-        # TODO: Добавить поддержку выключения этой фичи.
-        # Нужно что бы пользователь сам управлял, какие части приложения ему нужны.
+        # Если обработка выключена.
+        if not DefaultSettings.AUTO_REST.EXCEPTIONS.PROCESS_EXCEPT:
+            return super().handle_exception(exc)
+
+        # Если указак свой обработчик.
+        if DefaultSettings.AUTO_REST.EXCEPTIONS.PROCESS_EXCEPT_HANDLER:
+            return DefaultSettings.AUTO_REST.EXCEPTIONS.PROCESS_EXCEPT_HANDLER(exc)
+
+        # Если это ошибка DRF-Auto, то обрабатываем ее.
         if isinstance(exc, FailPointRequest):
             return self.fail(status=exc.status, code=exc.code, message=exc.message, data=exc.data, fields=exc.fields)
-        if isinstance(exc, ValidationError):
-            return self.fail(status=400, code=401, data=exc.detail)
+
+        # Иначе смотрим список ошибок которые следует обрабатывать.
+        status = DefaultSettings.AUTO_REST.EXCEPTIONS.STATUS_EXCEPTION_LIST
+        code = DefaultSettings.AUTO_REST.EXCEPTIONS.CODE_EXCEPTION_LIST
+
+        # Если список указан, то бежим по нему и ищем нашу ошибку.
+        if DefaultSettings.AUTO_REST.EXCEPTIONS.EXCEPTION_LIST:
+            for e in DefaultSettings.AUTO_REST.EXCEPTIONS.EXCEPTION_LIST:
+                if isinstance(exc, e):
+                    return self.fail(status=status, code=code, data=str(exc))
 
         return super().handle_exception(exc)
 
@@ -321,14 +340,14 @@ class RestListAPIView(AutoRequestSerializerView, ListAPIView, AutoResponseSerial
 
         """
         assert self.paginator is not None
-        # TODO: Приходиться формировать объект ответа два раза,
+        # TODO: Приходиться формировать объект ответа два раза.
         # что бы оставить свободу выбора юзеру, в выборе пагинационного бэкенда.
         # TODO: Костыль определяния, пришли уже конкретный филды или объект целиком?
         # Если конкретные, то серилизовать их не нужно.
         # TODO: Неверное суждение.
         ser_data = data
         if not getattr(data, '_fields', None):
-            ser_data = self.get_serializer_for_response()(data, many=True).data
+            ser_data = self.get_serializer_class(is_response=True)(data, many=True).data
         return self.paginator.get_paginated_response(ser_data).data
 
 
