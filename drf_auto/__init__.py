@@ -11,7 +11,7 @@ ______ ______ ______         ____
 VERSION = (0, 4, '1a0')
 default_app_config = "drf_auto.apps.DRFAutoConfig"
 
-__title__ = 'Django REST framework Auto'
+__title__ = 'Django REST Framework Auto'
 __author__ = 'Deys Timofey'
 __email__ = 'nxexox@gmail.com'
 __copyright__ = 'Copyright (c) 2018 Deys Timofey'
