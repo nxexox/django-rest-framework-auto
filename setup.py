@@ -15,7 +15,7 @@ setup(
     license='Apache 2.0',  # Ставим лицензию
     description='Auto docs, auto tests, auto helpers for Django REST Framework. Python3.x, Django>=1.9',
     long_description=README,
-    # url=drf_auto.__url__,
+    url=drf_auto.__url__,
     author=drf_auto.__author__,
     author_email=drf_auto.__email__,
     maintainer=drf_auto.__author__,
