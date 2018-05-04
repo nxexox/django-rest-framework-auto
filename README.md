@@ -177,10 +177,13 @@ urlpatterns = [
 ```python
 # ... your other settings
 REST_FRAMEWORK_AUTO = {
-    'HIDE_DOCS': True,
-    'SERIALIZERS_ATTR_NAME': 'docs_serializer_classes',
-    'EXCLUDE_FIELDS_ATTR_NAME': 'docs_exclude_fields',
-    'SERIALIZER_DOC_ATTR': 'doc_method_fields_classes',
+    'DOCS': {
+        'HIDE_DOCS': False,
+        'SERIALIZERS_ATTR_NAME': 'docs_serializer_classes',
+        'EXCLUDE_FIELDS_ATTR_NAME': 'docs_exclude_fields',
+        'SERIALIZER_DOC_ATTR': 'doc_method_fields_classes',
+        'PARSER_CLASS': 'drf_auto.autodocs.parsers.DefaultParser'
+    },
     'SERIALIZER_DOC_CODES': {'common': {}, 'specific': {}},
     'SERIALIZERS_RESPONSE_FIELD': 'serializer_classes',
     'SERIALIZERS_REQUEST_FIELD': 'serializer_classes',
@@ -190,10 +193,11 @@ REST_FRAMEWORK_AUTO = {
 # ... your other settings
 ```
 
- - `HIDE_DOCS` - Скрыть ли документацию. Нужно например что бы скрывать документацию апи для разработчиков на продакшн стенде.
- - `SERIALIZERS_ATTR_NAME` - Название атрибута, который будет уставновлен на всех view, для поиска словаря с описанием сериалайзеров для документации.
- - `EXCLUDE_FIELDS_ATTR_NAME` - Название атрибута для исключения филдов из описания документации.
- - `SERIALIZER_DOC_ATTR` - Название атрибута для описания `SerialiazerMethodField` у сериалайзеров. Прописывать в `serializer.Meta` классе. Даже если класс не `ModelSerializer`.
+ - `DOCS.HIDE_DOCS` - Скрыть ли документацию. Нужно например что бы скрывать документацию апи для разработчиков на продакшн стенде.
+ - `DOCS.SERIALIZERS_ATTR_NAME` - Название атрибута, который будет уставновлен на всех view, для поиска словаря с описанием сериалайзеров для документации.
+ - `DOCS.EXCLUDE_FIELDS_ATTR_NAME` - Название атрибута для исключения филдов из описания документации.
+ - `DOCS.SERIALIZER_DOC_ATTR` - Название атрибута для описания `SerialiazerMethodField` у сериалайзеров. Прописывать в `serializer.Meta` классе. Даже если класс не `ModelSerializer`.
+ - `DOCS.PARSER_CLASS` - Путь до класса, который парсит сериалайзер и возвращает нужные данные для автодоки.
  - `SERIALIZER_DOC_CODES` - Единая база ошибок.
  - `SERIALIZERS_RESPONSE_FIELD` - Название филда, для поиска словаря сериалайзеров для ответа.
  - `SERIALIZERS_REQUEST_FIELD` - Название филда, для поиска словаря сериалайзеров для обработки запроса.

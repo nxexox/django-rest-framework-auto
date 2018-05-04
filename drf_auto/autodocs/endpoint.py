@@ -1,14 +1,17 @@
+"""
+Автодокументация. Один поинт.
+
+"""
 import json
 import inspect
 
 from django.contrib.admindocs.views import simplify_regex
 from django.utils.encoding import force_str
 
-from rest_framework.fields import ChoiceField, SerializerMethodField
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.serializers import BaseSerializer, ListSerializer
 
-from .settings import DocsSettings
+from ..settings import DefaultSettings
+from .parsers import DefaultParser
 
 # Список методов у ViewSets. Надо для добычи разрешенных методов у этих классов.
 VIEWSET_METHODS = {
@@ -25,9 +28,13 @@ SERIALIZER_METHODS = {
 
 
 class ApiEndpoint(object):
+    """
+    Объект поинта. Описывает всю логику сбора, хранения и отображения данных по поинту.
+
+    """
     def __init__(self, pattern, parent_regex=None, drf_router=None):
         """
-        Полная инициализация поинта. Тут доатсаются и формируются все данные.
+        Полная инициализация поинта. Тут достаются и формируются все данные.
 
         :param pattern:
         :param parent_regex:
@@ -43,9 +50,9 @@ class ApiEndpoint(object):
         self.allowed_methods = self.__get_allowed_methods()
 
         self.errors = None
-        self.serializer_classes = self.__get_serializer_classes(DocsSettings.SERIALIZERS_ATTR_NAME)
+        self.serializer_classes = self.__get_serializer_classes(DefaultSettings.DOCS.SERIALIZERS_ATTR_NAME)
         self.methods_docs = {}  # Тут лежат докстринги функций классов.
-        self.exclude_fields = self.__get_exclude_fields(DocsSettings.EXCLUDE_FIELDS_ATTR_NAME)
+        self.exclude_fields = self.__get_exclude_fields(DefaultSettings.DOCS.EXCLUDE_FIELDS_ATTR_NAME)
 
         if self.serializer_classes:
             fields_in, fields_out = {}, {}
@@ -70,18 +77,18 @@ class ApiEndpoint(object):
                     ser_in = data.get('IN', data.get('in', None))
                     __exc_f_in = exc_f_in if exc_f_in else exc_f_all
                     __exc_f_out = exc_f_out if exc_f_out else exc_f_all
-                    fields_in[method_name] = self.__get_serializer_fields(ser_in, __exc_f_in) if ser_in else {}
+                    fields_in[method_name] = DefaultParser().get_serializer_fields(ser_in, __exc_f_in) if ser_in else {}
                     ser_out = data.get('OUT', data.get('out', None))
-                    fields_out[method_name] = self.__get_serializer_fields(ser_out, __exc_f_out) if ser_out else {}
+                    fields_out[method_name] = DefaultParser().get_serializer_fields(ser_out, __exc_f_out) if ser_out else {}
                 else:
                     # Если не прописал, пробуем руками разрулить что куда.
                     if method_name in SERIALIZER_METHODS['IN'] and 'GET' in self.allowed_methods:
                         __exc_f_in = exc_f_in if exc_f_in else exc_f_all
-                        fields_out[method_name] = self.__get_serializer_fields(data, __exc_f_in)
+                        fields_out[method_name] = DefaultParser().get_serializer_fields(data, __exc_f_in)
                     if method_name in SERIALIZER_METHODS['OUT'] and \
                             set(SERIALIZER_METHODS['OUT']) & set(self.allowed_methods):
                         __exc_f_out = exc_f_out if exc_f_out else exc_f_all
-                        fields_in[method_name] = self.__get_serializer_fields(data, __exc_f_out)
+                        fields_in[method_name] = DefaultParser().get_serializer_fields(data, __exc_f_out)
 
                 doc = self.__get_docstring(getattr(self.callback.cls, method_name.lower(), None))
                 if doc:
@@ -271,113 +278,9 @@ class ApiEndpoint(object):
         fields = {}
 
         for method_name, serializer_class in self.serializer_classes.items():
-            fields[method_name] = self.__get_serializer_fields(serializer_class())
+            fields[method_name] = DefaultParser().get_serializer_fields(serializer_class())
 
         return fields
-
-    def __get_field_props(self, field, key=None, sub_fields=None,
-                          to_many_relation=None, label=None, choices_fields=None):
-        """
-        Формирует данные по конкретному филду.
-
-        :param rest_framework.fields.Field, rest_framework.serializers.Serializer field: Объект филда.
-        :param str key: Название филда.
-        :param list sub_fields: Вложенные филды, если это составной филд.
-        :param bool to_many_relation: Указатель на Relation связи.
-        :param str label: Текст описания филда label поле.
-        :param tuple choices_fields: Значения, которые может принимать это поле.
-
-        :return: Словарь с данными по конкретному филду.
-        :rtype: dict
-
-        """
-        return {
-            # Если нет field_name [предположительно] это корневой список без имени
-            'name': key if key is not None else (field.field_name if field.field_name else '[list]'),
-            'type': str(field.__class__.__name__),
-            'sub_fields': sub_fields,
-            'required': field.required,
-            'to_many_relation': to_many_relation if to_many_relation is not None else hasattr(field, 'many'),
-            'label': label if label else field.label if field.label else '',
-            'description': field.help_text if field.help_text else '',
-            'choices_fields': choices_fields
-        }
-
-    def __get_serializer_fields(self, serializer, exclude_fields=None):
-        """
-        Возвращает список фидлов у сериалайзера.
-
-        :param serializer: Сериалайзер, для которого необъходимо вернуть.
-        :param exclude_fields: Поля, которые необходимо исключить из сериалайзера.
-        :type serializer: rest_framework.serializers.Serializer, rest_framework.serializers.SerializerMetaclass
-        :type exclude_fields: list
-
-        :return: Список филдов сериалайзера.
-        :rtype: list
-
-        """
-        fields = []
-        if not serializer:
-            return []
-        # На сто процентов убеждаемся, что пришел проинициализированный сериалайзер.
-        serializer = serializer if isinstance(serializer, BaseSerializer) else serializer()
-        extra_fields = getattr(getattr(serializer, 'Meta', {}), DocsSettings.SERIALIZER_DOC_ATTR, {})
-
-        if isinstance(serializer, ListSerializer):
-            # Обрабатываем список
-            fields.append(self.__get_field_props(
-                serializer, sub_fields=self.__get_serializer_sub_fields(serializer)))
-
-        if hasattr(serializer, 'get_fields'):
-            for key, field in serializer.get_fields().items():
-                if exclude_fields and key in exclude_fields:
-                    continue
-
-                label = None
-
-                if extra_fields and isinstance(field, SerializerMethodField):
-                    # Пробуем достать из мета класса.
-                    ser = extra_fields.get(key, None)
-                    if ser:
-                        label = field.label
-                        field = ser()
-
-                to_many_relation = True if hasattr(field, 'many') else False
-                sub_fields = self.__get_serializer_sub_fields(field)
-                choices_fields = None
-
-                if isinstance(field, ChoiceField):
-                    choices_fields = field.choices
-
-                fields.append(self.__get_field_props(
-                    field, key=key, sub_fields=sub_fields,
-                    to_many_relation=to_many_relation, label=label,
-                    choices_fields=choices_fields
-                ))
-
-        return fields
-
-    def __get_serializer_sub_fields(self, field):
-        """
-        Достает вложенные филды у филда.
-
-        :param field: Объект филда.
-        :type field: rest_framework.fields.Field или rest_framework.serializers.Serializer
-
-        :return: Список со вложенными филдами.
-        :rtype: list
-
-        """
-        sub_fields = None
-        if isinstance(field, BaseSerializer):
-            if hasattr(field, 'many'):
-                if isinstance(field.child, BaseSerializer):
-                    sub_fields = self.__get_serializer_fields(field.child)
-                elif isinstance(field, ListSerializer):
-                    sub_fields = [self.__get_field_props(field.child, key='[list-item]')]
-            else:
-                sub_fields = self.__get_serializer_fields(field)
-        return sub_fields
 
     def __get_serializer_fields_json(self):
         """

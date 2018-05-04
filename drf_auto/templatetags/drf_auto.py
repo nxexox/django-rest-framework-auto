@@ -18,7 +18,7 @@ information = 'Любая точка может вернуть ошибку с �
 information += 'Типы кодов:</br><ul class="fields list">{}</ul>'.format(
     ''.join((
         '<li class="fields">{key} - {val}</li>'.format(key=key, val=val)
-        for key, val in DefaultSettings.DOCS.CODES.get('common', []).items()
+        for key, val in DefaultSettings.CODES.get('common', []).items()
     ))
 )
 
@@ -26,7 +26,7 @@ information += 'Типы кодов:</br><ul class="fields list">{}</ul>'.format
 information += 'Коды:</br><ul class="fields list">{}</ul>'.format(
     ''.join((
         '<li class="fields">{key} - {val}</li>'.format(key=key, val=val)
-        for key, val in DefaultSettings.DOCS.CODES.get('specific', []).items()
+        for key, val in DefaultSettings.CODES.get('specific', []).items()
     ))
 )
 

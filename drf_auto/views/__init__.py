@@ -6,7 +6,7 @@ from django.http import Http404
 from django.views.generic.base import TemplateView
 
 from ..autodocs.docs import ApiDocumentation
-from ..autodocs.settings import DocsSettings
+from ..settings import DefaultSettings
 
 
 class DRFDocsView(TemplateView):
@@ -15,7 +15,7 @@ class DRFDocsView(TemplateView):
     drf_router = None
 
     def get_context_data(self, **kwargs):
-        if DocsSettings.HIDE_DOCS:
+        if DefaultSettings.DOCS.HIDE_DOCS:
             raise Http404()
 
         context = super(DRFDocsView, self).get_context_data(**kwargs)
