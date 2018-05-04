@@ -20,5 +20,7 @@ node_modules
 *tests/snapshots/*
 *tests/fixtures/gitignore/*
 
-local_settings.py
+doctrees/
+.buildinfo
+
 TODO
