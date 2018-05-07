@@ -110,15 +110,15 @@ class DRFSettings(object):
                 # Если вложенная тогда создаем объект настроек для вложенного класса и продолжаем поиск там.
                 # Обрубаем текущий уровень и пробрасываем найденные настройки для импорта след уровня.
                 __imports = [
-                    item.split('.')[1]
+                    item.split('.', 1)[1]
                     for item in self.__imports
-                    if item.split('.')[0] == attr
+                    if item.split('.', 1)[0] == attr
                 ]
                 # Обрубаем текущий уровень и пробрасываем найденные настройки для не создания объекта след уровня.
                 __not_create = [
-                    item.split('.')[1]
+                    item.split('.', 1)[1]
                     for item in self.__not_create
-                    if item.split('.')[0] == attr
+                    if item.split('.', 1)[0] == attr
                 ]
 
                 # Кэшируем значение.

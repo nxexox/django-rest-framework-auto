@@ -26,7 +26,6 @@ $('.plug').bind('click', function(evt) {
   // Setup the form
   var data = $(this).data();
   data.methods =  _.isArray(data.methods) ? data.methods : utils.transformMethods(data.methods);
-  console.log('SUKA', data);
 
   ReactDOM.render(
     <LiveAPIEndpoints endpoint={data} />, document.getElementById('liveAPIEndpoints')

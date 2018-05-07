@@ -364,9 +364,21 @@ class RestRetrieveAPIView(AutoRequestSerializerView, RetrieveAPIView, AutoRespon
         return super().get(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
+        """
+        Формируем и возвращаем сам ответ.
+
+        """
+        # Достаем объект.
         instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return self.get_response(code=200, data=serializer.data, is_serializer=True)
+        # Если он уже серилизован, тогда отдаем то что есть.
+        if self.is_serializer:
+            data = instance
+        else:
+            # Если не серилизован тогда серилизуем его.
+            serializer = self.get_serializer_class(is_response=True)(instance)
+            data = serializer.data
+        # Отдаем ответ.
+        return self.get_response(code=200, data=data, is_serializer=self.is_serializer)
 
 
 class RestUpdateAPIView(AutoRequestSerializerView, UpdateAPIView, AutoResponseSerializerView):
@@ -420,7 +432,7 @@ class RestCreateAPIView(AutoRequestSerializerView, CreateAPIView, AutoResponseSe
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return self.get_response(code=201, data=serializer.instance, headers=headers)
+        return self.get_response(code=201, data=serializer.instance, headers=headers, is_serializer=self.is_serializer)
 
 
 class RestDestroyAPIView(AutoRequestSerializerView, DestroyAPIView, AutoResponseSerializerView):
