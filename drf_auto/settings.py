@@ -30,8 +30,21 @@ __DEFAULTS = {
             'PROCESS_EXCEPT_HANDLER': None,  # Свой обработчик ошибок.
             # Список исключений, которые обрабатываем.
             'EXCEPTION_LIST': ['rest_framework.serializers.ValidationError'],
+            # Словарь, где ключ это исключение, значение это данные для fail метода.
+            'EXCEPTION_DICT': {
+                'rest_framework.serializers.ValidationError': {
+                    # Только эти настройки можно переопределять.
+                    'status': 400,
+                    'code': 400,
+                    'message': 'Ошибка валидации. Неверные данные.',
+                    'fields': {'status': 'status', 'code': 'code', 'message': 'message', 'data': 'data'},
+                    'data_attr': 'detail'  # Название атрибута у исключения, из которого тянем подробности.
+                }
+            },
             'CODE_EXCEPTION_LIST': 400,  # Код ответа апи при обработке исключний.
             'STATUS_EXCEPTION_LIST': 400,  # Код ответа сервера при обработке исключений.
+            # Флаг, указывающий нужно ли автоматически пробовать конвертировать data в json, при ответе fail.
+            'DATA_TO_JSON': True,
         },
     },
     'CODES': CODES,
@@ -44,11 +57,12 @@ __DEFAULTS = {
 # Настройки, которые нужно импортировать как классы/функции. Вложенность через .
 __IMPORTS = {
     'DOCS.PARSER_CLASS',
-    'AUTO_REST.EXCEPTIONS.EXCEPTION_LIST', 'AUTO_REST.EXCEPTIONS.PROCESS_EXCEPT_HANDLER'
+    'AUTO_REST.EXCEPTIONS.EXCEPTION_LIST', 'AUTO_REST.EXCEPTIONS.PROCESS_EXCEPT_HANDLER',
+    'AUTO_REST.EXCEPTIONS.EXCEPTION_DICT'
 }
 # Настройки которые не нужно создавать как подкласс настроек, а брать прямо как указано. Вложенность через .
 __NOT_CREATE_SETTINGS = {
-    'CODES'
+    'CODES', 'AUTO_REST.EXCEPTIONS.EXCEPTION_DICT'
 }
 
 
@@ -102,7 +116,7 @@ class DRFSettings(object):
         # TODO: ЗАКОНЧИТЬ С НАСТРОЙКАМИ!!!
         # Сначала смотрим что есть такая настройка.
         if attr not in self.__defaults:
-            raise AttributeError("Invalid DRF-Auto setting: '%s'" % attr)
+            raise AttributeError('Invalid DRF-Auto setting: `%s`' % attr)
 
         # Теперь смотрим, вложенная ли настройка или нет.
         if isinstance(self.__defaults[attr], dict):
@@ -149,10 +163,11 @@ class DRFSettings(object):
         """
         Превращает строку из настроек в классы.
 
-        :param Union[str, iter] val: Одна или много строк с путями до классов/функций, которые нужно импортировать.
+        :param Union[str, iter, dict] val: Одна или много строк с путями до классов/функций,
+                                           которые нужно импортировать.
 
         :return: Импортированные данные.
-        :rtype: Union[str, int]
+        :rtype: Union[str, iter, dict]
 
         """
         if val is None:
@@ -161,6 +176,9 @@ class DRFSettings(object):
             return self._get_class_from_module(val)
         elif isinstance(val, (list, tuple)):
             return [self._get_class_from_module(item) for item in val]
+        elif isinstance(val, dict):
+            # TODO: python2
+            return {self._get_class_from_module(key): val for key, val in val.items()}
         return val
 
     def _get_class_from_module(self, path_to_class):

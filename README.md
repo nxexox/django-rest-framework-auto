@@ -188,9 +188,18 @@ REST_FRAMEWORK_AUTO = {
         'EXCEPTIONS': {
             'PROCESS_EXCEPT': True,
             'PROCESS_EXCEPT_HANDLER': None,
-            'EXCEPTION_LIST': ['rest_framework.serializers.ValidationError'],
             'CODE_EXCEPTION_LIST': 400,
             'STATUS_EXCEPTION_LIST': 400,
+            'EXCEPTION_LIST': ['rest_framework.serializers.ValidationError'],
+            'EXCEPTION_DICT': {
+                'rest_framework.serializers.ValidationError': {
+                    'status': 400,
+                    'code': 400,
+                    'message': 'Ошибка валидации. Неверные данные.',
+                    'fields': {'status': 'status', 'code': 'code', 'message': 'message', 'data': 'data'},
+                    'data_attr': 'detail',
+                },
+            },
         },
     },
     'SERIALIZER_DOC_CODES': {'common': {}, 'specific': {}},
@@ -212,6 +221,7 @@ REST_FRAMEWORK_AUTO = {
  - `AUTO_REST.EXCEPTIONS.EXCEPTION_LIST` - Список исключений, которые дополнительно стоит обработать помимо `drf_auto.exceptions.FailPointRequest`. Работает только если включен `PROCESS_EXCEPT`.
  - `AUTO_REST.EXCEPTIONS.CODE_EXCEPTION_LIST` - Код ответа апи при ответе, во время обработки исключения.
  - `AUTO_REST.EXCEPTIONS.STATUS_EXCEPTION_LIST` - Код ответа сервера при ответе, во время обработки исключения.
+ - `AUTO_REST.EXCEPTIONS.EXCEPTION_DICT` - Словарь с описанием как обрабатывать исключение. Ключ это само исключение из списка `EXCEPTION_LIST`. Значение это данные для метода `fail` у апи. Все аргументы кроме `data`. `data` берется из самого исключения. Для поиска данных в самом исключении используется `data_attr`. Это название атрибута у исключения, в котором хранятся данные по ошибке.
  - `SERIALIZER_DOC_CODES` - Единая база ошибок.
  - `SERIALIZERS_RESPONSE_FIELD` - Название филда, для поиска словаря сериалайзеров для ответа.
  - `SERIALIZERS_REQUEST_FIELD` - Название филда, для поиска словаря сериалайзеров для обработки запроса.

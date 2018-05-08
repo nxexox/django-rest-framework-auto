@@ -3,6 +3,7 @@
 
 """
 import logging
+import json
 
 from rest_framework.generics import (
     ListAPIView, RetrieveAPIView, UpdateAPIView,
@@ -53,10 +54,18 @@ class AutoPointFailRequest(GenericAPIView):
         if not message:
             message = DefaultSettings.get_code(code)
 
+        # Готовим данные. Преобразуем в JSON.
+        if isinstance(data, str) and DefaultSettings.AUTO_REST.EXCEPTIONS.DATA_TO_JSON:
+            try:
+                data = json.loads(data)
+            except json.decoder.JSONDecodeError:
+                pass
+
         kwargs = {}  # Формируем ответ.
         if fields:
+            local_data = locals()
             # Если нужно ручное управление филдами.
-            kwargs = {new_key: locals().get(old_key) for new_key, old_key in fields.items()}
+            kwargs = {new_key: local_data.get(old_key) for new_key, old_key in fields.items()}
         else:
             # Иначе формируем стандартный ответ.
             kwargs = {'code': code, 'message': message}
@@ -96,7 +105,20 @@ class AutoPointFailRequest(GenericAPIView):
         if DefaultSettings.AUTO_REST.EXCEPTIONS.EXCEPTION_LIST:
             for e in DefaultSettings.AUTO_REST.EXCEPTIONS.EXCEPTION_LIST:
                 if isinstance(exc, e):
-                    return self.fail(status=status, code=code, data=str(exc))
+                    # Теперь смотрим, указаны ли особые настройки для этого исключения.
+                    if e in DefaultSettings.AUTO_REST.EXCEPTIONS.EXCEPTION_DICT:
+                        # Готовим данные что бы отдать в формирование ответа.
+                        # Пробуем достать данные из исключения.
+                        kwargs = {
+                            k: v
+                            for k, v in DefaultSettings.AUTO_REST.EXCEPTIONS.EXCEPTION_DICT[e].items()
+                            if k != 'data_attr'
+                        }
+                        data_attr = DefaultSettings.AUTO_REST.EXCEPTIONS.EXCEPTION_DICT[e].get('data_attr', None)
+                        data = getattr(exc, data_attr) if data_attr else str(exc)
+                        return self.fail(data=data, **kwargs)
+                    else:
+                        return self.fail(status=status, code=code, data=str(exc))
 
         return super().handle_exception(exc)
 
@@ -218,7 +240,6 @@ class AutoSearchSerializerView(AutoPointFailRequest):
         return super().get_serializer_class()
 
 
-# TODO: Было бы классно, убрать это APIView и сделать классы миксинами, или чем то аналогичным.
 class AutoResponseSerializerView(AutoSearchSerializerView):
     """
     Класс, который помогает автомагически формировать респонс от сервера.
@@ -239,7 +260,7 @@ class AutoResponseSerializerView(AutoSearchSerializerView):
         Если is_serializer = True, тогда дата возвращается в том виде, в котором передана.
 
         :param int code: Код ответа ручки
-        :param rest_framework.serializers.Serializer serializer: Сериалайзер, ктоорый уже хранит данные.
+        :param rest_framework.serializers.Serializer serializer: Сериалайзер, который уже хранит данные.
         :param dict data: Словарь ответа от сервера.
         :param bool is_serializer: Серилизованные ли данные пришли.
         :param rest_framework.serializers.Serializer() serializer_class: Класс сериалайзера, которым отдать респонс.
