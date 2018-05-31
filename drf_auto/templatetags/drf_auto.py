@@ -45,6 +45,6 @@ def get_item(dictionary, key):
 @register.simple_tag
 def get_settings_formats():
     return {
-        "<id>": "Некий параметр, который передается как часть URL.",
-        "Ошибки": information
+        '<id>': 'Некий параметр, который передается как часть URL.',
+        'Ошибки': information
     }

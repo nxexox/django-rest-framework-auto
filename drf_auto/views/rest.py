@@ -399,7 +399,7 @@ class RestRetrieveAPIView(AutoRequestSerializerView, RetrieveAPIView, AutoRespon
             serializer = self.get_serializer_class(is_response=True)(instance)
             data = serializer.data
         # Отдаем ответ.
-        return self.get_response(code=200, data=data, is_serializer=self.is_serializer)
+        return self.get_response(code=200, data=data, is_serializer=True)
 
 
 class RestUpdateAPIView(AutoRequestSerializerView, UpdateAPIView, AutoResponseSerializerView):

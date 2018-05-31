@@ -41,6 +41,7 @@ class ApiEndpoint(object):
         :param drf_router:
 
         """
+        # Достаем простые данные из вьюхи.
         self.drf_router = drf_router
         self.pattern = pattern
         self.callback = pattern.callback
@@ -49,11 +50,13 @@ class ApiEndpoint(object):
         self.path = self.__get_path(parent_regex)
         self.allowed_methods = self.__get_allowed_methods()
 
+        # Достаем сложные данные из вьюхи.
         self.errors = None
         self.serializer_classes = self.__get_serializer_classes(DefaultSettings.DOCS.SERIALIZERS_ATTR_NAME)
         self.methods_docs = {}  # Тут лежат докстринги функций классов.
         self.exclude_fields = self.__get_exclude_fields(DefaultSettings.DOCS.EXCLUDE_FIELDS_ATTR_NAME)
 
+        # Парсим сами сериалайзеры.
         if self.serializer_classes:
             fields_in, fields_out = {}, {}
             for method_name, data in self.serializer_classes.items():
