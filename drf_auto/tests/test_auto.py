@@ -16,8 +16,8 @@ log = logging.getLogger(__name__)
 При подготовке данных для запроса не всегда ясно какие нужны значения к примеру в случае
 с такими полями как JSONField или когда IntegerField используется как PK экземпляра модели.
 
-Для таких ситуаций нужно использовать функцию `apps.utils.tests.test_helper_factory`.
-При необходимости наличия среди данных pk использовать класс `apps.utils.tests.Deferred`.
+Для таких ситуаций нужно использовать функцию `tests.utils.test_helper_factory`.
+При необходимости наличия среди данных pk использовать класс `tests.utils.Deferred`.
 Подробнее в docstring'ах функции и класса.
 
 Так же view можно дополнить классовым методом test_setup для подготовки к его тестированию.
@@ -313,9 +313,6 @@ class AutoTestCase(APITestCase):
 
 
 ENDPOINTS = ApiDocumentation().get_endpoints()
-
-# Проверяем пока вьюхи концепт мапы.
-ENDPOINTS = [ep for ep in ENDPOINTS if ep.path.startswith('/api/maps/concept-map/')]
 
 # Собираем список запросов.
 REQUESTS_LIST = []
