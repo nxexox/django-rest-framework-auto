@@ -179,7 +179,7 @@ class ApiEndpoint(object):
         view_methods = [force_str(m).upper()
                         for m in self.callback.cls.http_method_names
                         if self.is_method_allowed(self.callback.cls, m)]
-        return sorted(viewset_methods + view_methods)
+        return sorted(viewset_methods + view_methods, key='DELETE'.__eq__)
 
     def __get_docstring(self, obj):
         """
